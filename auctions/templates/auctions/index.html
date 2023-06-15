@@ -1,0 +1,419 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}    
+<div class="mt-5 mb-5">
+    <div class="d-flex justify-content-center row">
+<h2>Your Active Listings</h2>
+    </div>
+</div>
+    {% if listingmessage %}
+        <div class="d-flex justify-content-center row"><h6 style="color: crimson;">{{ listingmessage }}</h6></div>
+    {% endif %}
+    {% if user_listing %}
+    {% for userlisting in user_listing %}    
+        <div class="container mt-5 mb-5">
+            <div class="d-flex justify-content-center row">
+                <div class="col-md-10">
+                    <div class="row p-2 bg-white border rounded lcard">
+                        <div class="col-md-3 mt-1"><img class="img-fluid img-responsive rounded product-image" src="{{userlisting.image}}"></div>
+                        <div class="col-md-6 mt-1">
+                            <h5>{{ userlisting.title }}</h5>
+                            <div class="d-flex flex-row">
+                                <div class="ratings mr-2"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div><span><p></p></span>
+                            </div>
+                            <div class="mt-1 mb-1 spec-1">
+                                <span>
+                                    {%if userlisting.category%}
+                                    <p class="card-text"><small class="text-muted"><a href="{% url 'commerce:category' userlisting.category  %}">Category {{userlisting.category }}</a></small></p>
+                                    {%else%}
+                                    <p></p>
+                                    {%endif%}
+                                </span>
+                            </div>
+                            <p class="text-justify text-truncate para mb-0">{{ userlisting.description }}<br><br></p>
+                            <div class="marg outer">
+                                <div class="inner">
+                                    <form action="{% url 'commerce:listingpage' userlisting.id%}" method="post">
+                                        {% csrf_token %}
+                                        <input class="marg btn btn-primary" type="submit" value="Explore">
+                                    </form>
+                                </div>
+                                    <div class="inner">
+                                        <form action="{% url 'commerce:delete' %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" value="{{userlisting.id}}" name="deleteid" >
+                                            <input class="btn btn-danger marg" type="submit" value="Delete Listing">
+                                        </form> 
+                                    </div>      
+                            </div>
+                        </div>
+                        <div class="align-items-center align-content-center col-md-3 border-left mt-1">
+                            <div class="d-flex flex-row align-items-center">
+                                <span class="strike-text"> Starting Price: ${{ userlisting.bid }}</span>
+                            </div>
+                                <div class="d-flex flex-row align-items-center">
+                                    {% if userlisting.currentbid %} 
+                                    <span class="strike-text"><b>Current Winner: {{userlisting.winninguser}}</b></span>
+                                    {%else%}
+                                        <p></p>
+                                    {%endif%}
+                            </div>
+                                <div class="d-flex flex-row align-items-center">
+                                {% if userlisting.currentbid %}
+                                    <span class="strike-text"><b>Current Bid: ${{ userlisting.currentbid }}</b></span>
+                                {%else%}
+                                <b>Current Bid: No Bids Yet </b>
+                                {%endif%}
+                            </div>
+                            <div style="margin: 2%;">
+                                <form action="{% url 'commerce:closedbids' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" value="{{userlisting.id}}" name="closeid" >
+                                    <input class="btn btn-warning marg" type="submit" value="Close Listing">
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {%endfor%}
+    {% else %}
+        <div class="d-flex justify-content-center row"><h6 style="color: navy;">{{ addmessage }}</h6></div>
+      
+    {%endif%}
+
+    {%if closeduser_listing%}
+    {%for closedlisting in closeduser_listing %}
+    <div class="container mt-5 mb-5">
+        <div class="d-flex justify-content-center row">
+            <div class="col-md-10">
+                <div class="row p-2 bg-white border rounded lcard">
+                    <div class="col-md-3 mt-1"><img class="img-fluid img-responsive rounded product-image" src="{{closedlisting.image}}"></div>
+                    <div class="col-md-6 mt-1">
+                        <h5>{{ closedlisting.title }}</h5>
+                        <div class="d-flex flex-row">
+                            <div class="ratings mr-2"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div><span><p></p></span>
+                        </div>
+                        <div class="mt-1 mb-1 spec-1">  
+                                <span>
+                                    {%if closedlisting.category%}
+                                    <p class="card-text"><small class="text-muted"><a href="{% url 'commerce:category' closedlisting.category %}">Category {{closedlisting.category}}</a></small></p>
+                                    {%else%}
+                                    <p></p>
+                                    {%endif%}
+                                </span>
+                    </div>
+                        <p class="text-justify text-truncate para mb-0">{{ closedlisting.description }}<br><br></p>
+                        <div class="marg outer">
+                                <div class="inner">
+                                    <form action="{% url 'commerce:delete' %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" value="{{closedlisting.id}}" name="deleteid" >
+                                        <input class="btn btn-danger marg" type="submit" value="Delete Listing">
+                                    </form> 
+                                </div>      
+                        </div>
+                    </div>
+                    <div class="align-items-center align-content-center col-md-3 border-left mt-1">
+                        <div class="d-flex flex-row align-items-center">
+                            <span class="strike-text">Min Bid was: ${{ closedlisting.bid }}</span>
+                        </div>
+                        <div class="d-flex flex-row align-items-center">
+                            <p class="card-text"><b>Bid Winner:
+                                {%if closedlisting.winninguser %} 
+                                    {{ closedlisting.winninguser }}
+                                {%else%}
+                                    No One Bid
+                                {%endif%}    
+                            
+                            </b></p>
+                        </div>
+                        <div class="d-flex flex-row align-items-center">
+                            <p class="card-text"><b>Final Bid : ${{closedlisting.currentbid}}</b></p>
+                        </div>
+                        <div class="d-flex flex-row align-items-center">
+                            <h4 style="color: crimson;">Closed</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {%endfor%}
+    {%endif%}
+    <hr>
+
+    <div class="mt-5 mb-5">
+        <div class="d-flex justify-content-center row">
+            <h2>Your Bids</h2>
+        </div>
+    </div>
+    {% if bidmessage %}
+        <div class="d-flex justify-content-center row"><h6 style="color: crimson;">{{ bidmessage }}</h6></div>
+    {% endif %}
+        {% if closeduserbids %}
+        {% for userbidsclosed in closeduserbids%}
+        <div class="container mt-5 mb-5">
+            <div class="d-flex justify-content-center row">
+                <div class="col-md-10">
+                    <div class="row p-2 bg-white border rounded lcard">
+                        <div class="col-md-3 mt-1"><img class="img-fluid img-responsive rounded product-image" src="{{userbidsclosed.itembid.image}}"></div>
+                        <div class="col-md-6 mt-1">
+                            <h5>{{ userbidsclosed.itembid.title }}</h5>
+                            <div class="d-flex flex-row">
+                                <div class="ratings mr-2"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div><span><p></p></span>
+                            </div>
+                            <div class="mt-1 mb-1 spec-1">
+                                <span>
+                                    {%if userbidsclosed.itembid.category%}
+                                    <p class="card-text"><small class="text-muted"><a href="{% url 'commerce:category' userbidsclosed.itembid.category %}">Category {{userbidsclosed.itembid.category}}</a></small></p>
+                                    {%else%}
+                                    <p></p>
+                                    {%endif%}
+                                </span>
+                            </div>
+                            <p class="text-justify text-truncate para mb-0">{{ userbidsclosed.itembid.description }}<br><br></p>
+                        </div>
+                        <div class="align-items-center align-content-center col-md-3 border-left mt-1">
+                            <div class="d-flex flex-row align-items-center">
+                                <span class="strike-text">Min bid was ${{ userbidsclosed.itembid.bid }}</span>
+                            </div>
+                            <div class="d-flex flex-row align-items-center">
+                                <p class="card-text"><b>Bid Winner:
+                                    {%if userbidsclosed.itembid.winninguser %} 
+                                        {{ userbidsclosed.itembid.winninguser }}
+                                    {%else%}
+                                        No One Bid
+                                    {%endif%}    
+                                
+                                </b></p>
+                            </div>
+                            <div class="d-flex flex-row align-items-center">
+                                <p class="card-text"><b>Final Bid : ${{userbidsclosed.itembid.currentbid}}</b></p>
+                            </div>
+                            <div class="d-flex flex-row align-items-center">
+                                <h4 style="color: crimson;">Closed</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {%endfor%}
+        {%endif%}  
+
+        {% if userbid %}
+        {% for userbids in userbid%}  
+        <div class="container mt-5 mb-5">
+            <div class="d-flex justify-content-center row">
+                <div class="col-md-10">
+                    <div class="row p-2 bg-white border rounded lcard">
+                        <div class="col-md-3 mt-1"><img class="img-fluid img-responsive rounded product-image" src="{{userbids.itembid.image}}"></div>
+                        <div class="col-md-6 mt-1">
+                            <h5>{{ userbids.itembid.title }}</h5>
+                            <div class="d-flex flex-row">
+                                <div class="ratings mr-2"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div><span></span>
+                            </div>
+                            <div class="mt-1 mb-1 spec-1">
+                                <span>
+                                    {%if userbids.itembid.category%}
+                                    <p class="card-text"><small class="text-muted"><a href="{% url 'commerce:category' userbids.itembid.category  %}">Category {{userbids.itembid.category}}</a></small></p>
+                                    {%else%}
+                                    <p></p>
+                                    {%endif%}
+                                </span>
+                            </div>
+    
+                            <p class="text-justify text-truncate para mb-0">{{ userbids.itembid.description }}<br><br></p>
+                            <div class="marg outer">
+                                <div class="inner">
+                                    <form action="{% url 'commerce:listingpage' userbids.itembid.id %}" method="post">
+                                        {% csrf_token %}
+                                        <input class="marg btn btn-primary" type="submit" value="Explore">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>      
+                        <div class="align-items-center align-content-center col-md-3 border-left mt-1">
+                            <div class="d-flex flex-row align-items-center">
+                                <span class="strike-text">Starting Price: ${{ userbids.itembid.bid }}</span>
+                            </div>
+                            <div class="d-flex flex-row align-items-center">
+                                <p class="card-text"><b>Your Winning Bid: ${{ userbids.itembid.currentbid }}</b></p>
+                            </div>
+                            <div class="d-flex flex-row align-items-center">
+                                <div class="marg outer">
+                                    <div class="inner">
+                                        <form action="{% url 'commerce:bidfunc' %}" method="post">
+                                            {% csrf_token %}
+                                            <div class="input-group mb-3">
+                                                <input class="btn btn-outline-success marg" type="submit" id="button-addon1" value="Bid">
+                                                <input required type="text" class="rounded marg" placeholder="Place Your Bid $" aria-describedby="button-addon1" name="bid" style="border-color:grey; width: 73%;">
+                                                <input type="hidden" value="{{userbids.itembid.id}}" name="bidid"> 
+                                            </div>  
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="marg outer">
+                                <div class="inner">
+                                    <form action="{% url 'commerce:bidfunc' %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" value="{{userbids.id}}" name="deleteid" >
+                                        <input type="hidden" value="{{userbids.itembid.id}}" name="bidid" >
+                                        <input class="btn btn-danger marg" type="submit" value="Cancel Bid">
+                                    </form> 
+                                </div>
+                            </div>       
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        {%endfor%}
+        {%else%}
+        <div class="d-flex justify-content-center row"><h6 style="color: navy;">{{ addbidmessage }}</h6></div>
+        {%endif%} 
+<hr>
+
+    <div class="d-flex justify-content-center row"><h2>Your Expired Bids</h2></div>
+    {% if exbidmessage %}
+    <br>
+        <div class="d-flex justify-content-center row"><h6 style="color: crimson;">{{ exbidmessage }}</h6></div>
+    {% endif %}
+
+        {% if closedinvaliduserbids %}
+        {% for invaliduserbidsclosed in closedinvaliduserbids %}
+        <div class="container mt-5 mb-5">
+            <div class="d-flex justify-content-center row">
+                <div class="col-md-10">
+                    <div class="row p-2 bg-white border rounded lcard">
+                        <div class="col-md-3 mt-1"><img class="img-fluid img-responsive rounded product-image" src="{{invaliduserbidsclosed.invalid_itembid.image}}"></div>
+                        <div class="col-md-6 mt-1">
+                            <h5>{{ invaliduserbidsclosed.invalid_itembid.title }}</h5>
+                            <div class="d-flex flex-row">
+                                <div class="ratings mr-2"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div><span></span>
+                            </div>
+                            <div class="mt-1 mb-1 spec-1">
+                                <span>
+                                    {%if invaliduserbidsclosed.invalid_itembid.category%}
+                                    <p class="card-text"><small class="text-muted"><a href="{% url 'commerce:category' invaliduserbidsclosed.invalid_itembid.category  %}">Category {{invaliduserbidsclosed.invalid_itembid.category}}</a></small></p>
+                                    {%else%}
+                                    <p></p>
+                                    {%endif%}
+                                </span>
+                            </div>
+                            <p class="text-justify text-truncate para mb-0">{{ invaliduserbidsclosed.invalid_itembid.description }}<br><br></p>
+                        </div>
+                        </div>
+                        <div class="align-items-center align-content-center col-md-3 border-left mt-1">
+                            <div class="d-flex flex-row align-items-center">
+                                <span class="strike-text">Starting Price: ${{ invaliduserbidsclosed.invalid_itembid.bid }}</span>
+                            </div>
+                            <div class="d-flex flex-row align-items-center">
+                                <p class="card-text"><b>Expired Bid: ${{ invaliduserbidsclosed.invalid_biding }}</b></p>
+                            </div>
+                            <div class="d-flex flex-row align-items-center">
+                                <p class="card-text"><b>Bid Winner: {{ invaliduserbidsclosed.invalid_itembid.winninguser }}</b></p>
+                            </div>
+                            <div class="d-flex flex-row align-items-center">
+                                <p class="card-text"><b>Final Bid: ${{ invaliduserbidsclosed.invalid_itembid.currentbid }}</b></p>
+                            </div>
+                            <div class="d-flex flex-row align-items-center">
+                                <h4 style="color: crimson;">Closed</h4>
+                            </div>
+                            <div class="marg outer">
+                                <div class="inner">
+                                    <form action="{% url 'commerce:invalidbidfunc' %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" value="{{invaliduserbidsclosed.id}}" name="deleteid" >
+                                        <input class="btn btn-danger marg" type="submit" value="Delete Expired Bid">
+                                    </form> 
+                                </div>       
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {%endfor%}
+
+        {%endif%}   
+        
+        {% if invalidbid %}
+        {% for invaliduserbids in invalidbid %}
+        
+        <div class="container mt-5 mb-5">
+            <div class="d-flex justify-content-center row">
+                <div class="col-md-10">
+                    <div class="row p-2 bg-white border rounded lcard">
+                        <div class="col-md-3 mt-1"><img class="img-fluid img-responsive rounded product-image" src="{{invaliduserbids.invalid_itembid.image}}"></div>
+                        <div class="col-md-6 mt-1">
+                            <h5>{{ invaliduserbids.invalid_itembid.title }}</h5>
+                            <div class="d-flex flex-row">
+                                <div class="ratings mr-2"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div><span></span>
+                            </div>
+                            <div class="mt-1 mb-1 spec-1">
+                                <span>
+                                    {%if invaliduserbids.invalid_itembid.category%}
+                                    <p class="card-text"><small class="text-muted"><a href="{% url 'commerce:category' invaliduserbids.invalid_itembid.category  %}">Category {{invaliduserbids.invalid_itembid.category}}</a></small></p>
+                                    {%else%}
+                                    <p></p>
+                                    {%endif%}
+                                </span>
+                            </div>
+                            <p class="text-justify text-truncate para mb-0">{{ invaliduserbids.invalid_itembid.description }}<br><br></p>
+                            <div class="marg outer">
+                                <div class="inner">
+                                    <form action="{% url 'commerce:listingpage' invaliduserbids.invalid_itembid.id %}" method="post">
+                                        {% csrf_token %}
+                                        <input class="marg btn btn-primary" type="submit" value="Explore">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="align-items-center align-content-center col-md-3 border-left mt-1">
+                            <div class="d-flex flex-row align-items-center">
+                                <span class="strike-text">Starting Price: ${{ invaliduserbids.invalid_itembid.bid }}</span>
+                            </div>
+                            <div class="d-flex flex-row align-items-center">
+                                <p class="card-text"><b>Expired Bid: ${{ invaliduserbids.invalid_biding }}</b></p>
+                            </div>
+                            <div class="d-flex flex-row align-items-center">
+                                <p class="card-text"><b>Winning User: {{ invaliduserbids.invalid_itembid.winninguser }}</b></p>
+                            </div>
+                            <div class="d-flex flex-row align-items-center">
+                                <p class="card-text"><b>Winning Bid: ${{ invaliduserbids.invalid_itembid.currentbid }}</b></p>
+                            </div>
+                            <div class="d-flex flex-row align-items-center marg">
+                                <form action="{% url 'commerce:bidfunc' %}" method="post">
+                                    {% csrf_token %}
+                                    <div class="input-group mb-3">
+                                        <input class="btn btn-outline-success marg" type="submit" id="button-addon1" value="Bid">
+                                        <input required type="text" class="rounded marg" placeholder="Place Your Bid $" aria-describedby="button-addon1" name="bid" style="border-color:grey; width: 73%;">
+                                        <input type="hidden" value="{{invaliduserbids.invalid_itembid.id}}" name="bidid"> 
+                                    </div>  
+                                </form>
+                            </div>
+                            <div class="marg outer">
+                                <div class="inner">
+                                    <form action="{% url 'commerce:invalidbidfunc' %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" value="{{invaliduserbids.id}}" name="deleteid" >
+                                        <input class="btn btn-danger marg" type="submit" value="Delete Expired Bid">
+                                    </form> 
+                                </div>       
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {%endfor%}
+        {%else%}
+        <br>
+        <div class="d-flex justify-content-center row"><h6 style="color: navy;">{{ addexbidmessage }}</h6></div>
+        {%endif%} 
+       
+    <hr>
+    {% endblock %}

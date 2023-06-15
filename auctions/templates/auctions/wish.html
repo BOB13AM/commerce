@@ -1,0 +1,162 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<div class="mt-5 mb-5">
+    <div class="d-flex justify-content-center row">
+<h2>Your WishList</h2>
+    </div>
+</div>
+
+{%if allitems and not closedwish%}
+<hr>
+<div class="d-flex justify-content-center row"><h6 style="color: navy;">No <span style="color: crimson;">Closed</span> Listings in Your WatchList</h6> </div>
+<hr>
+{%elif closedwish and not allitems%}
+<hr>
+<div class="d-flex justify-content-center row"><h6 style="color: navy;">You Have Some <span style="color: crimson;">Closed</span> Listings in Your WatchList</h6> </div>
+<hr>
+{%else%}
+<hr>
+<div class="d-flex justify-content-center row"><h6 style="color: navy;">Your Wishlist is Empty!</h6> </div>
+<hr>
+{%endif%}
+
+{% if allitems %}
+{% for items in allitems %}
+    <div class="container mt-5 mb-5">
+        <div class="d-flex justify-content-center row">
+            <div class="col-md-10">
+                <div class="row p-2 bg-white border rounded lcard">
+                    <div class="col-md-3 mt-1"><img class="img-fluid img-responsive rounded product-image" src="{{items.image}}"></div>
+                    <div class="col-md-6 mt-1">
+                        <h5>{{ items.title }}</h5>
+                        <div class="d-flex flex-row">
+                            <div class="ratings mr-2"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div><span></span>
+                        </div>
+                        <div class="mt-1 mb-1 spec-1"><span>
+                        {%if items.category%}
+                        <p class="card-text"><small class="text-muted"><a href="{% url 'commerce:category' items.category %}">Category {{items.category}}</a></small></p>
+                        {%else%}
+                        <p></p>
+                        {%endif%}
+                            </span>
+                        </div>
+                        <p class="text-justify text-truncate para mb-0">{{ items.description }} <br><br></p>
+                        <div class="marg outer">
+                            <div class="inner">
+                                <form action="{% url 'commerce:listingpage' items.id%}" method="post">
+                                    {% csrf_token %}
+                                    <input class="marg btn btn-primary" type="submit" value="Explore">
+                                </form>
+                            </div>
+                            <div class="inner">
+                                <form action="{% url 'commerce:wish' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" value="{{items.id}}" name="deletewishid">
+                                    <input class="marg btn btn-danger" type="submit" value="Remove">
+                                </form>
+                            </div>
+                            
+                        </div>
+                        
+                           
+                        
+                    </div>
+                    <div class="align-items-center align-content-center col-md-3 border-left mt-1">
+                        <div class="d-flex flex-row align-items-center">
+                            <span class="strike-text">Starting Price: ${{ items.bid }}</span>
+                        </div>
+                        
+                        <div class="d-flex flex-row align-items-center">
+                            {% if items.currentbid %} 
+                            <span class="strike-text"><b>Current Winner: {{items.winninguser}}</b></span>
+                            {%else%}
+                                <p></p>
+                            {%endif%}
+                    </div>
+                        <div class="d-flex flex-row align-items-center">
+                        {% if items.currentbid %}
+                            <span class="strike-text"><b>Current Bid: ${{ items.currentbid }}</b></span>
+                        {%else%}
+                        <b>Current Bid: No Bids Yet </b>
+                        {%endif%}
+                    </div>
+                            <form action="{% url 'commerce:bidfunc' %}" method="post">
+                                {% csrf_token %}
+                                <div class="input-group mb-3">
+                                    <input class="btn btn-outline-success marg" type="submit" id="button-addon1" value="Bid">
+                                    <input required type="text" class="rounded marg" placeholder="Place Your Bid $" aria-describedby="button-addon1" name="bid" style="border-color:grey; width: 73%;">
+                                    <input type="hidden" value="{{items.id}}" name="bidid"> 
+                                </div>  
+                            </form>
+                            
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endfor %}
+{%endif%} 
+
+{%if closedwish%}
+{% for closeditems in closedwish %}
+    <div class="container mt-5 mb-5">
+        <div class="d-flex justify-content-center row">
+            <div class="col-md-10">
+                <div class="row p-2 bg-white border rounded lcard">
+                    <div class="col-md-3 mt-1"><img class="img-fluid img-responsive rounded product-image" src="{{closeditems.image}}"></div>
+                    <div class="col-md-6 mt-1">
+                        <h5>{{ closeditems.title }}</h5>
+                        <div class="d-flex flex-row">
+                            <div class="ratings mr-2"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div><span></span>
+                        </div>
+                        <div class="mt-1 mb-1 spec-1"><span>
+                        {%if closeditems.category%}
+                        <p class="card-text"><small class="text-muted"><a href="{% url 'commerce:category' closeditems.category %}">Category {{closeditems.category}}</a></small></p>
+                        {%else%}
+                        <p></p>
+                        {%endif%}
+                            </span>
+                        </div>
+                        <p class="text-justify text-truncate para mb-0">{{ closeditems.description }} <br><br></p>
+                        <div class="marg outer">
+                            <div class="inner">
+                                <form action="{% url 'commerce:wish' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" value="{{closeditems.id}}" name="deletewishid">
+                                    <input class="marg btn btn-danger" type="submit" value="Remove">
+                                </form>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div class="align-items-center align-content-center col-md-3 border-left mt-1">
+                        <div class="d-flex flex-row align-items-center">
+                            <span class="strike-text">Min Bid was: ${{ closeditems.bid }}</span>
+                        </div>
+                        <div class="d-flex flex-row align-items-center">
+                            <p class="card-text"><b>Bid Winner:
+                                {%if closeditems.winninguser %} 
+                                    {{ closeditems.winninguser }}
+                                {%else%}
+                                    No One Bid
+                                {%endif%}    
+                            
+                            </b></p>
+                        </div>
+                        <div class="d-flex flex-row align-items-center">
+                            <p class="card-text"><b>Final Bid : ${{closeditems.currentbid}}</b></p>
+                        </div>
+                        <div class="d-flex flex-row align-items-center">
+                            <h4 style="color: crimson;">Closed</h4>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endfor %}
+{%endif%} 
+
+{% endblock %}

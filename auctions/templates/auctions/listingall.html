@@ -1,0 +1,153 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+
+
+<div class="mt-5 mb-5">
+    <div class="d-flex justify-content-center row">
+<h2>Active Listings</h2>
+    </div>
+</div>
+
+{%if not closed_listing%}
+<div class="d-flex justify-content-center row">
+    <h6 style="color: navy;">All Listings Are Valid If Any</h6>
+</div>
+{%else%}
+<div class="d-flex justify-content-center row">
+    <h6 style="color: navy;">Some Listings Are <spam style="color: crimson;">Closed</spam></h6>
+</div>
+{%endif%}
+<br>
+
+{% if all_listing %}
+{% for all in all_listing %}
+<div class="container mt-5 mb-5">
+  <div class="d-flex justify-content-center row">
+    <div class="col-md-10">
+        <div class="row p-2 bg-white border rounded lcard">
+            <div class="col-md-3 mt-1"><img class="img-fluid img-responsive rounded product-image" src="{{all.image}}"></div>
+            <div class="col-md-6 mt-1">
+                <h5>{{ all.title }}</h5>
+                <div class="d-flex flex-row">
+                    <div class="ratings mr-2"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div>
+                </div> 
+                    <div class="mt-1 mb-1 spec-1">
+                        <span>
+                            {%if all.category%}
+                            <p class="card-text"><small class="text-muted"><a href="{% url 'commerce:category' all.category %}">Category {{all.category}}</a></small></p>
+                            {%else%}
+                            <p></p>
+                            {%endif%}
+                        </span>
+                    </div>
+                        <p class="text-justify text-truncate para mb-0">{{all.description}}<br><br></p>
+               </div>
+            <div class="align-items-center align-content-center col-md-3 border-left mt-1">
+                <div class="d-flex flex-row align-items-center">
+                   <span class="strike-text"> Starting Price: ${{ all.bid }}</span>
+                </div>
+
+                <div class="d-flex flex-row align-items-center">
+                    {% if all.currentbid %} 
+                    <span class="strike-text"><b>Current Winner: {{all.winninguser}}</b></span>
+                    {%else%}
+                        <p></p>
+                    {%endif%}
+             </div>
+                <div class="d-flex flex-row align-items-center">
+                {% if all.currentbid %}
+                    <span class="strike-text"><b>Current Bid: ${{ all.currentbid }}</b></span>
+                 {%else%}
+                 <b>Current Bid: No Bids Yet </b>
+                {%endif%}
+             </div>
+                    <form action="{% url 'commerce:bidfunc' %}" method="post">
+                    {% csrf_token %}
+                    <div class="input-group mb-3">
+                        <input class="btn btn-outline-success marg" type="submit" id="button-addon1" value="Bid">
+                        <input required type="text" class="rounded marg" placeholder="Place Your Bid $" aria-describedby="button-addon1" name="bid" style="border-color:grey; width: 73%;">
+                        <input type="hidden" value="{{all.id}}" name="bidid"> 
+                    </div>  
+                    </form>
+            
+                <div class="d-flex flex-column mt-4" style="margin: 2%;">
+                    <div class="marg outer">
+                        <div class="inner">
+                            <form action="{% url 'commerce:listingpage' all.id %}" method="post">
+                                {% csrf_token %}
+                                <input class="marg btn btn-primary" type="submit" value="Explore">
+                            </form>
+                        </div>
+                        <div class="inner">
+                            <form action="{% url 'commerce:wish' %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" value="{{all.id}}" name="wishid">
+                                <input class="marg btn btn-warning" type="submit" value="Add To Wishlist">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<hr>
+{%endfor%}
+
+{% else %}
+<div class="d-flex justify-content-center row">
+    <h6 style="color: navy;">No Listing Yet</h6>
+</div>
+{%endif%}
+
+
+{% if closed_listing %}
+{% for allclosed in closed_listing %}
+<div class="container mt-5 mb-5">
+    <div class="d-flex justify-content-center row">
+        <div class="col-md-10">
+            <div class="row p-2 bg-white border rounded lcard">
+                <div class="col-md-3 mt-1"><img class="img-fluid img-responsive rounded product-image" src="{{allclosed.image}}"></div>
+                <div class="col-md-6 mt-1">
+                    <h5>{{ allclosed.title }}</h5>
+                    <div class="d-flex flex-row">
+                        <div class="ratings mr-2"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div><span></span>
+                    </div>
+                    <div class="mt-1 mb-1 spec-1"><span>
+                        {%if allclosed.category%}
+                        <p class="card-text"><small class="text-muted"><a href="{% url 'commerce:category' allclosed.category %}">Category {{allclosed.category}}</a></small></p>
+                        {%else%}
+                        <p></p>
+                        {%endif%}
+                        </span>
+                    </div>
+                    <p class="text-justify text-truncate para mb-0">{{ allclosed.description }}<br><br></p>
+                </div>
+
+                <div class="align-items-center align-content-center col-md-3 border-left mt-1">
+                    <div class="d-flex flex-row align-items-center">
+                        <span class="strike-text">Min Bid was: ${{ allclosed.bid }}</span>
+                    </div>
+                    <div class="d-flex flex-row align-items-center">
+                        <p class="card-text"><b>Bid Winner: {{ allclosed.winninguser }}</b></p>
+                    </div>
+                    <div class="d-flex flex-row align-items-center">
+                        <p class="card-text"><b>final bid of: ${{allclosed.currentbid}}</b></p>
+                    </div>
+                    <div class="d-flex flex-row align-items-center">
+                        <h4 style="color: crimson;">Closed</h4>
+                    </div>
+                  </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%endfor%}
+{%endif%}
+
+
+
+{% endblock %}

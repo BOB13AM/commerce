@@ -1,0 +1,49 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    {% if message %}
+    <hr>
+        <p style="color: crimson;">{{message}}</p>
+    <hr>
+    {%endif%}
+
+    <div class="container">
+        <h2>Create Listings</h2>
+        <form action="{% url 'commerce:create' %}" method="post">
+            {% csrf_token %}
+            <div class="row marg">
+                <input type="text" name="title" class="col-3" placeholder="Title*" required>
+            </div>
+            <div class="row marg">
+                <textarea required type="input" name="description" class="col-6" placeholder="description*" style="height: 150px;"></textarea>
+            </div>
+            <div class="row marg">
+                <input type="text" name="image" class="col-3" placeholder="image-URL">
+            </div>
+            <div class="row marg">
+                <input required type="text" name="bid" class="col-3" placeholder="min-bid $*">
+            </div>
+            <div class="row marg">
+                <select name="category">
+
+                    <option selected disabled>Categories</option>
+                    <option value="Cars">Cars</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Fashion">Fashion</option>
+                    <option value="Foods">Foods</option>
+                    <option value="Home">Home</option>
+                    <option value="Toys">Toys</option>
+                    <option value="Sports">Sports</option>
+                                                  
+                </select>
+            </div>
+            
+            <div class="row marg">
+                <input type="submit" value="Create New Listing" class="col-2">
+            </div>
+        </form>
+    </div>
+
+    <hr>
+ 
+{% endblock %}
